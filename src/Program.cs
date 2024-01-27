@@ -8,8 +8,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
+using dotenv.net;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotEnv.Load();
 
 // Auth0
 var domain = $"https://{builder.Configuration["Auth0:Domain"]}/";

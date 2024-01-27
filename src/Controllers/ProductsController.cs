@@ -1,19 +1,22 @@
-using product_service.Models;
-using product_service.Services;
+using bb_api.Models;
+using bb_api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-namespace product_service.Controllers;
+namespace bb_api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
     private readonly ProductsService _ProductsService;
+    private readonly FarmsService _FarmsService;
 
-    public ProductsController(ProductsService ProductsService) =>
+    public ProductsController(ProductsService ProductsService, FarmsService FarmsService){
         _ProductsService = ProductsService;
+        _FarmsService = FarmsService;
+    }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> Get(
@@ -77,11 +80,16 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
+    // [Authorize]
     public async Task<IActionResult> Post(Product newProduct)
     {
-        string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        newProduct.UserId = userId;
+        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (farmerId == null) return BadRequest();
+
+        Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        if (farm.Id == null) return BadRequest();
+
+        newProduct.FarmId = farm.Id;
 
         await _ProductsService.CreateAsync(newProduct);
 
@@ -89,7 +97,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id:length(24)}")]
-    [Authorize]
+    // [Authorize]
     public async Task<IActionResult> Update(string id, Product updatedProduct)
     {
 
@@ -99,8 +107,11 @@ public class ProductsController : ControllerBase
             return NotFound();
         }
 
-        string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId != Product.UserId)
+        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (farmerId == null) return BadRequest();
+
+        Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        if (farmerId != farm.FarmerId)
         {
             return Unauthorized();
         }
@@ -113,7 +124,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
-    [Authorize]
+    // [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
 
@@ -123,8 +134,11 @@ public class ProductsController : ControllerBase
             return NotFound();
         }
 
-        string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId != Product.UserId)
+        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (farmerId == null) return BadRequest();
+
+        Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        if (farmerId != farm.FarmerId)
         {
             return Unauthorized();
         }

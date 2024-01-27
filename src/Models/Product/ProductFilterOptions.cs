@@ -1,4 +1,4 @@
-namespace product_service.Models;
+namespace bb_api.Models;
 
 public class ProductFilterOptions
 {

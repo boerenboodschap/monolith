@@ -1,5 +1,5 @@
-using product_service.Models;
-using product_service.Services;
+using bb_api.Models;
+using bb_api.Services;
 
 using Prometheus;
 
@@ -35,8 +35,11 @@ builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 // Database
 builder.Services.Configure<ProductDatabaseSettings>(
     builder.Configuration.GetSection("ProductDatabase"));
+builder.Services.Configure<FarmDatabaseSettings>(
+    builder.Configuration.GetSection("FarmDatabase"));
 
 builder.Services.AddSingleton<ProductsService>();
+builder.Services.AddSingleton<FarmsService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

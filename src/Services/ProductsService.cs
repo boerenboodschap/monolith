@@ -1,9 +1,9 @@
-using product_service.Models;
+using bb_api.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Microsoft.EntityFrameworkCore;
 
-namespace product_service.Services;
+namespace bb_api.Services;
 
 public class ProductsService
 {
@@ -22,7 +22,7 @@ public class ProductsService
             ProductDatabaseSettings.Value.ProductsCollectionName);
     }
 
-    public async Task<List<Product>> GetAsync(int page, int pageSize, string name, string userId)
+    public async Task<List<Product>> GetAsync(int page, int pageSize, string name, string farmId)
     {
         var filterBuilder = Builders<Product>.Filter.Empty;
 
@@ -31,9 +31,9 @@ public class ProductsService
             filterBuilder = Builders<Product>.Filter.Where(x => x.Name.ToLower().Contains(name.ToLower()));
         }
 
-        if (!string.IsNullOrWhiteSpace(userId))
+        if (!string.IsNullOrWhiteSpace(farmId))
         {
-            filterBuilder = Builders<Product>.Filter.Where(x => x.UserId.Equals(userId));
+            filterBuilder = Builders<Product>.Filter.Where(x => x.FarmId.Equals(farmId));
         }
 
         var products = await _productsCollection.Find(filterBuilder)
@@ -46,6 +46,9 @@ public class ProductsService
 
     public async Task<Product?> GetAsync(string id) =>
         await _productsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    public async Task<List<Product>> GetByFarmIdAsync(string farmId) =>
+        await _productsCollection.Find(x => x.FarmId == farmId).ToListAsync();
 
     public async Task CreateAsync(Product newProduct) =>
         await _productsCollection.InsertOneAsync(newProduct);

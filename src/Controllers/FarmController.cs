@@ -77,8 +77,8 @@ public class FarmsController : ControllerBase
     // [Authorize]
     public async Task<IActionResult> Post(Farm newFarm)
     {
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        newFarm.FarmerId = farmerId;
+        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // newFarm.FarmerId = farmerId;
 
         await _FarmsService.CreateAsync(newFarm);
 
@@ -96,11 +96,11 @@ public class FarmsController : ControllerBase
             return NotFound();
         }
 
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (farmerId != Farm.FarmerId)
-        {
-            return Unauthorized();
-        }
+        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // if (farmerId != Farm.FarmerId)
+        // {
+        //     return Unauthorized();
+        // }
 
         updatedFarm.Id = Farm.Id;
 
@@ -120,11 +120,11 @@ public class FarmsController : ControllerBase
             return NotFound();
         }
 
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (farmerId != Farm.FarmerId)
-        {
-            return Unauthorized();
-        }
+        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // if (farmerId != Farm.FarmerId)
+        // {
+        //     return Unauthorized();
+        // }
 
         await _FarmsService.RemoveAsync(id);
 

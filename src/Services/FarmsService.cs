@@ -11,15 +11,25 @@ public class FarmsService
 
     public FarmsService(
         IOptions<FarmDatabaseSettings> FarmDatabaseSettings)
+    // {
+    //     var mongoClient = new MongoClient(
+    //         FarmDatabaseSettings.Value.ConnectionString);
+
+    //     var mongoDatabase = mongoClient.GetDatabase(
+    //         FarmDatabaseSettings.Value.DatabaseName);
+
+    //     _farmsCollection = mongoDatabase.GetCollection<Farm>(
+    //         FarmDatabaseSettings.Value.FarmsCollectionName);
+    // }
     {
         var mongoClient = new MongoClient(
-            FarmDatabaseSettings.Value.ConnectionString);
+            Environment.GetEnvironmentVariable("MONGO_CONNECTIONSTRING") ?? "mongodb://root:example@localhost:27017/");
 
         var mongoDatabase = mongoClient.GetDatabase(
-            FarmDatabaseSettings.Value.DatabaseName);
+            "BoerenBoodschap");
 
         _farmsCollection = mongoDatabase.GetCollection<Farm>(
-            FarmDatabaseSettings.Value.FarmsCollectionName);
+            "Farms");
     }
 
     public async Task<List<Farm>> GetAsync(int page, int pageSize, string name, string userId)

@@ -83,13 +83,13 @@ public class ProductsController : ControllerBase
     // [Authorize]
     public async Task<IActionResult> Post(Product newProduct)
     {
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (farmerId == null) return BadRequest();
+        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // if (farmerId == null) return BadRequest();
 
-        Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
-        if (farm.Id == null) return BadRequest();
+        // Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        // if (farm.Id == null) return BadRequest();
 
-        newProduct.FarmId = farm.Id;
+        // newProduct.FarmId = farm.Id;
 
         await _ProductsService.CreateAsync(newProduct);
 
@@ -107,14 +107,14 @@ public class ProductsController : ControllerBase
             return NotFound();
         }
 
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (farmerId == null) return BadRequest();
+        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // if (farmerId == null) return BadRequest();
 
-        Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
-        if (farmerId != farm.FarmerId)
-        {
-            return Unauthorized();
-        }
+        // Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        // if (farmerId != farm.FarmerId)
+        // {
+        //     return Unauthorized();
+        // }
 
         updatedProduct.Id = Product.Id;
 
@@ -134,14 +134,14 @@ public class ProductsController : ControllerBase
             return NotFound();
         }
 
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (farmerId == null) return BadRequest();
+        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // if (farmerId == null) return BadRequest();
 
-        Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
-        if (farmerId != farm.FarmerId)
-        {
-            return Unauthorized();
-        }
+        // Farm farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        // if (farmerId != farm.FarmerId)
+        // {
+        //     return Unauthorized();
+        // }
 
         await _ProductsService.RemoveAsync(id);
 

@@ -24,12 +24,15 @@ public class FarmsController : ControllerBase
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string name = "",
-            [FromQuery] string userId = ""
+            [FromQuery] string userId = "",
+            [FromQuery] double posX = 0,
+            [FromQuery] double posY = 0,
+            [FromQuery] int radius = 0
         )
     {
         try
         {
-            var Farms = await _FarmsService.GetAsync(page, pageSize, name, userId);
+            var Farms = await _FarmsService.GetAsync(page, pageSize, name, userId, posX, posY, radius);
 
             if (Farms == null)
             {
@@ -58,6 +61,23 @@ public class FarmsController : ControllerBase
         return Farm;
     }
 
+    [HttpGet("/my-farm")]
+    [Authorize]
+    public async Task<ActionResult<Farm>> GetMyFarm()
+    {
+        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // check if this user already has a Farm
+        var Farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+
+        if (Farm is null)
+        {
+            return NotFound();
+        }
+
+        return Farm;
+    }
+
     [HttpGet("{id:length(24)}/products")]
     public async Task<ActionResult<Product[]>> GetProducts(string id)
     {
@@ -74,11 +94,16 @@ public class FarmsController : ControllerBase
     }
 
     [HttpPost]
-    // [Authorize]
+    [Authorize]
     public async Task<IActionResult> Post(Farm newFarm)
     {
-        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        // newFarm.FarmerId = farmerId;
+        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // check if this user already has a Farm
+        var Farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        if (Farm != null) return BadRequest();
+
+        newFarm.FarmerId = farmerId;
 
         await _FarmsService.CreateAsync(newFarm);
 

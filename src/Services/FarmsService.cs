@@ -9,30 +9,22 @@ public class FarmsService
 {
     private readonly IMongoCollection<Farm> _farmsCollection;
 
-    public FarmsService(
-        IOptions<FarmDatabaseSettings> FarmDatabaseSettings)
-    // {
-    //     var mongoClient = new MongoClient(
-    //         FarmDatabaseSettings.Value.ConnectionString);
-
-    //     var mongoDatabase = mongoClient.GetDatabase(
-    //         FarmDatabaseSettings.Value.DatabaseName);
-
-    //     _farmsCollection = mongoDatabase.GetCollection<Farm>(
-    //         FarmDatabaseSettings.Value.FarmsCollectionName);
-    // }
+    public FarmsService()
     {
         var mongoClient = new MongoClient(
-            Environment.GetEnvironmentVariable("MONGO_CONNECTIONSTRING") ?? "mongodb://root:example@localhost:27017/");
+            Environment.GetEnvironmentVariable("MONGO_CONNECTIONSTRING") ?? "mongodb://root:example@localhost:27017/"
+        );
 
         var mongoDatabase = mongoClient.GetDatabase(
-            "BoerenBoodschap");
+            Environment.GetEnvironmentVariable("MONGO_DATABASE") ?? "BoerenBoodschap"
+        );
 
         _farmsCollection = mongoDatabase.GetCollection<Farm>(
-            "Farms");
+            Environment.GetEnvironmentVariable("MONGO_FARMS_COLLECTION") ?? "Farms"
+        );
     }
 
-    public async Task<List<Farm>> GetAsync(int page, int pageSize, string name, string userId)
+    public async Task<List<Farm>> GetAsync(int page, int pageSize, string name, string userId, double posX, double posY, int radius)
     {
         var filterBuilder = Builders<Farm>.Filter.Empty;
 
@@ -44,6 +36,11 @@ public class FarmsService
         if (!string.IsNullOrWhiteSpace(userId))
         {
             filterBuilder = Builders<Farm>.Filter.Where(x => x.FarmerId.Equals(userId));
+        }
+
+        if (posX != 0 && posY != 0 && radius != 0)
+        {
+            // smart logic on filtering by location
         }
 
         var farms = await _farmsCollection.Find(filterBuilder)

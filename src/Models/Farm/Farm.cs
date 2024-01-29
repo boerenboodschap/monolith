@@ -17,4 +17,6 @@ public class Farm
     public string? Name { get; set; }
 
     public string Description { get; set; } = "";
+    public double? PosX { get; set; }
+    public double? PosY { get; set; }
 }

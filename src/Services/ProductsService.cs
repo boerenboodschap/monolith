@@ -9,27 +9,19 @@ public class ProductsService
 {
     private readonly IMongoCollection<Product> _productsCollection;
 
-    public ProductsService(
-        IOptions<ProductDatabaseSettings> ProductDatabaseSettings)
-    // {
-    //     var mongoClient = new MongoClient(
-    //         ProductDatabaseSettings.Value.ConnectionString);
-
-    //     var mongoDatabase = mongoClient.GetDatabase(
-    //         ProductDatabaseSettings.Value.DatabaseName);
-
-    //     _productsCollection = mongoDatabase.GetCollection<Product>(
-    //         ProductDatabaseSettings.Value.ProductsCollectionName);
-    // }
+    public ProductsService()
     {
         var mongoClient = new MongoClient(
-            Environment.GetEnvironmentVariable("MONGO_CONNECTIONSTRING") ?? "mongodb://root:example@localhost:27017/");
+            Environment.GetEnvironmentVariable("MONGO_CONNECTIONSTRING") ?? "mongodb://root:example@localhost:27017/"
+        );
 
         var mongoDatabase = mongoClient.GetDatabase(
-            "BoerenBoodschap");
+            Environment.GetEnvironmentVariable("MONGO_DATABASE") ?? "BoerenBoodschap"
+        );
 
         _productsCollection = mongoDatabase.GetCollection<Product>(
-            "Products");
+            Environment.GetEnvironmentVariable("MONGO_PRODUCTS_COLLECTION") ?? "Products"
+        );
     }
 
     public async Task<List<Product>> GetAsync(int page, int pageSize, string name, string farmId)

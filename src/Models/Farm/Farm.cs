@@ -10,6 +10,7 @@ public class Farm
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
+    [Required]
     public string? FarmerId { get; set; }
 
     [Required(ErrorMessage = "Name is required.")]

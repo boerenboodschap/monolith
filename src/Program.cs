@@ -2,39 +2,12 @@ using bb_api.Models;
 using bb_api.Services;
 
 using Prometheus;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-
 using dotenv.net;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 DotEnv.Load();
-
-// Auth0
-var domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(options =>
-{
-    options.Authority = domain;
-    options.Audience = builder.Configuration["Auth0:Audience"];
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        NameClaimType = ClaimTypes.NameIdentifier
-    };
-});
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("read:messages", policy => policy.Requirements.Add(new
-    HasScopeRequirement("read:messages", domain)));
-});
-
-builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 // Database
 builder.Services.Configure<ProductDatabaseSettings>(
@@ -63,10 +36,6 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.UseRouting();
-
-app.UseAuthentication();
-
-app.UseAuthorization();
 
 // Capture metrics about all received HTTP requests.
 app.UseHttpMetrics();

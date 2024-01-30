@@ -54,7 +54,7 @@ public class FarmsService
     public async Task<Farm?> GetAsync(string id) =>
         await _farmsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task<Farm> GetByFarmerIdAsync(string farmerId) =>
+    public async Task<Farm?> GetByFarmerIdAsync(string farmerId) =>
         await _farmsCollection.Find(x => x.FarmerId == farmerId).FirstOrDefaultAsync();
 
     public async Task CreateAsync(Farm newFarm) =>

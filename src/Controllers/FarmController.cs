@@ -6,6 +6,9 @@ using System.Security.Claims;
 
 namespace bb_api.Controllers;
 
+ using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+
 [ApiController]
 [Route("api/[controller]")]
 public class FarmsController : ControllerBase
@@ -13,10 +16,14 @@ public class FarmsController : ControllerBase
     private readonly FarmsService _FarmsService;
     private readonly ProductsService _ProductsService;
 
+    private readonly ILogger logger;
+
     public FarmsController(FarmsService FarmsService, ProductsService ProductsService)
     {
         _FarmsService = FarmsService;
         _ProductsService = ProductsService;
+        using ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
+        ILogger logger = factory.CreateLogger("Program");
     }
 
     [HttpGet]
@@ -61,14 +68,21 @@ public class FarmsController : ControllerBase
         return Farm;
     }
 
-    [HttpGet("/my-farm")]
-    [Authorize]
-    public async Task<ActionResult<Farm>> GetMyFarm()
+    [HttpGet("my-farm/{id:length(24)}")]
+    // [Authorize]
+    public async Task<ActionResult<Farm>> GetMyFarm(string id)
     {
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // if (farmerId is null)
+        // {
+        //     return BadRequest();
+        // }
+
+        // TODO: check if the id is not encoded
 
         // check if this user already has a Farm
-        var Farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
+        var Farm = await _FarmsService.GetByFarmerIdAsync(id);
 
         if (Farm is null)
         {
@@ -94,10 +108,11 @@ public class FarmsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Post(Farm newFarm)
     {
-        string farmerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if(newFarm.FarmerId.IsNullOrEmpty()) return BadRequest();
+
+        string farmerId = newFarm.FarmerId;
 
         // check if this user already has a Farm
         var Farm = await _FarmsService.GetByFarmerIdAsync(farmerId);
@@ -111,7 +126,6 @@ public class FarmsController : ControllerBase
     }
 
     [HttpPut("{id:length(24)}")]
-    // [Authorize]
     public async Task<IActionResult> Update(string id, Farm updatedFarm)
     {
 

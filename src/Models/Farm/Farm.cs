@@ -11,7 +11,7 @@ public class Farm
     public string? Id { get; set; }
 
     [Required]
-    public string? FarmerId { get; set; }
+    public string FarmerId { get; set; } = "";
 
     [Required(ErrorMessage = "Name is required.")]
     [StringLength(100, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 100 characters.")]

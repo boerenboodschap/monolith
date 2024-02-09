@@ -3,11 +3,11 @@ using bb_api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System;
 
 namespace bb_api.Controllers;
 
- using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Logging;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -110,7 +110,7 @@ public class FarmsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(Farm newFarm)
     {
-        if(newFarm.FarmerId.IsNullOrEmpty()) return BadRequest();
+        if(newFarm.FarmerId == "") return BadRequest();
 
         string farmerId = newFarm.FarmerId;
 

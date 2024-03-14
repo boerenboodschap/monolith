@@ -2,6 +2,10 @@
 
 ## Run the application
 
+### Local Development with a mongo database
+
+Configure the database connectionstring in the .env file.
+
 ### Locally
 
 with docker-compose: `docker compose up`

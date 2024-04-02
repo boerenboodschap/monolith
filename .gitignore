@@ -1,6 +1,10 @@
-*database/
-*uploads/
 *node_modules/
+
+*.png
+*.avif
+*.JPG
+*.db
+*.sqlite
 
 # .env
 

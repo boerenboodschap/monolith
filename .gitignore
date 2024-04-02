@@ -1,4 +1,7 @@
-.env
+*database/
+*uploads/
+
+# .env
 
 appsettings.Development.json
 appsettings.Staging.json

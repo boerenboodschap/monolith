@@ -28,11 +28,11 @@ jobs:
       - name: pwd
         run: pwd
       - name: npm install
-        run: npm install
+        run: cd ./directus-node && npm install
       - name: Directus Bootstrap
-        run: npx directus bootstrap
+        run: cd ./directus-node && npx directus bootstrap
       - name: Apply Schema
         run: npx directus schema apply --yes ./snapshot.yaml
       - name: Start Directus
-        run: npx directus start
+        run: cd ./directus-node && npx directus start
           

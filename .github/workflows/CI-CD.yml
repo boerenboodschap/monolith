@@ -23,6 +23,8 @@ jobs:
           # cache: # optional
       - name: cd to directus-node
         run: cd ./directus-node
+      - name: ls
+        run: ls
       - name: pwd
         run: pwd
       - name: npm install

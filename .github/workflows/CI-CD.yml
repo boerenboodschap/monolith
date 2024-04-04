@@ -29,6 +29,8 @@ jobs:
         run: pwd
       - name: npm install
         run: cd ./directus-node && npm install
+      - name: run the database
+        run: cd ./directus-docker && docker compose up -d
       - name: Directus Bootstrap
         run: cd ./directus-node && npx directus bootstrap
       - name: Apply Schema

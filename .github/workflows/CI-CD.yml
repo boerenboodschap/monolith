@@ -19,6 +19,8 @@ jobs:
         run: cd ./directus-node && npm install
       - name: run the database
         run: cd ./directus-docker && docker compose up -d
+      - name: docker ps
+        run: docker ps
       - name: Wait for Postgres (Optional)
         # This step introduces a delay
         run: |

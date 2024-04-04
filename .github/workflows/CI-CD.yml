@@ -22,7 +22,7 @@ jobs:
       - name: Wait for Postgres (Optional)
         # This step introduces a delay
         run: |
-          until PGPING=ping nc -z postgres 5432; do
+          until PGPING=ping nc -z 0.0.0.0 5432; do
             echo "Waiting for postgres..."
             sleep 5
           done

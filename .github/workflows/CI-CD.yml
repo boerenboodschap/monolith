@@ -19,6 +19,13 @@ jobs:
         run: cd ./directus-node && npm install
       - name: run the database
         run: cd ./directus-docker && docker compose up -d
+      - name: Wait for Postgres (Optional)
+        # This step introduces a delay
+        run: |
+          until PGPING=ping nc -z postgres 5432; do
+            echo "Waiting for postgres..."
+            sleep 5
+          done
       - name: Directus Bootstrap
         run: cd ./directus-node && npx directus bootstrap
       - name: Apply Schema

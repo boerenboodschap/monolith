@@ -17,20 +17,21 @@ jobs:
           node-version: 18.17
       - name: npm install
         run: cd ./directus-node && npm install
-      - name: run the database
-        run: cd ./directus-docker && docker compose up -d
-      - name: docker ps
-        run: docker ps
-      - name: Wait for Postgres (Optional)
-        # This step introduces a delay
-        run: |
-          until PGPING=ping nc -z 0.0.0.0 5432; do
-            echo "Waiting for postgres..."
-            sleep 5
-          done
-      - name: Directus Bootstrap
-        run: cd ./directus-node && npx directus bootstrap
-      - name: Apply Schema
-        run: npx directus schema apply --yes ./snapshot.yaml
-      - name: Start Directus
-        run: cd ./directus-node && npx directus start
+      # - name: run the database
+      #   run: cd ./directus-docker && docker compose up -d
+      # - name: docker ps
+      #   run: docker ps
+      # - name: Wait for Postgres (Optional)
+      #   # This step introduces a delay
+      #   run: |
+      #     until PGPING=ping nc -z 0.0.0.0 5432; do
+      #       echo "Waiting for postgres..."
+      #       sleep 5
+      #     done
+      # # TODO: fix that the connection gets cut off in this step (maybe just RTFM!)
+      # - name: Directus Bootstrap
+      #   run: cd ./directus-node && npx directus bootstrap
+      # - name: Apply Schema
+      #   run: npx directus schema apply --yes ./snapshot.yaml
+      # - name: Start Directus
+      #   run: cd ./directus-node && npx directus start

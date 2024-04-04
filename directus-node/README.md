@@ -1,4 +1,37 @@
-# Snapshot the Data Model
+# Directus with the npx CLI
+
+This project contains files generated from the `npx directus init` command, the configuration for directus is the .env file.
+
+The snapshot.yaml file contains the data models that have been created in directus and then exported to yaml format. This is very useful so we can save different versions of the applications and apply the configurations in a CI/CD pipeline.
+
+## Running directus
+
+With these commands, the database can be installed and the snapshots of the data models can be applied. The configuration of the directus server is in the .env file.
+
+Before you get started, make sure you have the following prerequisites:
+
+- Node v18.17 or higher.
+- A running PostgreSQL server.
+
+Bootstrap the project to install the database and apply migrations.
+
+```bash
+npx directus bootstrap
+```
+
+Start the directus server
+
+```bash
+npx directus start
+```
+
+Apply the snapshot to insert the data models into directus.
+
+```bash
+npx directus schema apply --yes ./snapshot.yaml
+```
+
+## Snapshot the Data Model
 
 Directus can automatically generate a snapshot of your current data model in YAML or JSON format. This includes all collections, fields, and relations, and their configuration. This snapshot can be checked in version control and shared with your team. To generate the snapshot, run
 

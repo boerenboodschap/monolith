@@ -15,8 +15,8 @@ jobs:
         uses: actions/setup-node@v4.0.2
         with:
           node-version: 18.17
-      - name: npm install
-        run: cd ./directus-node && npm install
+      # - name: npm install
+      #   run: cd ./directus-node && npm install
       # - name: run the database
       #   run: cd ./directus-docker && docker compose up -d
       # - name: docker ps

@@ -7,222 +7,26 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  directus:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.0.2
         with:
-          dotnet-version: 7.0.x
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore
-
-  lint:
-    needs: build
-    # Set the agent to run on
-    runs-on: ubuntu-latest
-
-    ############################################
-    # Grant status permission for MULTI_STATUS #
-    ############################################
-    permissions:
-      contents: read
-      packages: read
-      statuses: write
-
-    ##################
-    # Load all steps #
-    ##################
-    steps:
-      ##########################
-      # Checkout the code base #
-      ##########################
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          # Full git history is needed to get a proper
-          # list of changed files within `super-linter`
-          fetch-depth: 0
-
-      ################################
-      # Run Linter against code base #
-      ################################
-      - name: Lint Code Base
-        uses: super-linter/super-linter@v5
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
+          node-version: 18.x
+          # Set this option if you want the action to check for the latest available version that satisfies the version spec.
+          check-latest: true
+          # Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.
+          # cache: # optional
+      - name: cd to directus-node
+        run: cd ./directus-node
+      - name: Directus Bootstrap
+        run: npx directus bootstrap
+      - name: Apply Schema
+        run: npx directus schema apply --yes ./snapshot.yaml
+      - name: Start Directus
+        run: npx directus start
           
-  zap_scan:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: docker compose
-        run: cd ./docker-compose && docker compose up -d
-      - name: ZAP Scan
-        uses: zaproxy/action-baseline@v0.3.0
-        with:
-          target: 'http://localhost:8080/api/products'
-
-  sonarcloud:
-    needs: [build, zap_scan]
-    runs-on: windows-latest
-
-    steps:
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: "zulu" # Alternative distribution options are available.
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v3
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-      - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
-        run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"boerenboodschap_bb-api" /o:"boerenboodschap" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build --no-restore
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7.0.x
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Test
-        run: dotnet test --verbosity normal
-
-  performance-test:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      # set up a local cluster
-      - name: Install kubectl
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y apt-transport-https gnupg2 curl
-          curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-          echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-          sudo apt-get update
-          sudo apt-get install -y kubectl
-
-      - name: Download and install Minikube
-        run: |
-          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-          chmod +x minikube
-          sudo mv minikube /usr/local/bin/
-
-      - name: Start Minikube
-        run: |
-          minikube start --driver=docker
-          minikube status
-
-      # Install MongoDB helm chart
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-
-      - name: Add Helm repository for MongoDB
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-
-      - name: Install MongoDB Helm Chart
-        run: |
-          helm install my-mongodb bitnami/mongodb
-
-      # print the working derectory and do ls command
-      - name: pwd and ls
-        run: |
-          pwd
-          ls
-
-      # Install bb-api helm chart
-      - name: Install bb-api Helm Chart
-        run: |
-          helm install bb-api ./helm
-
-      - name: Port Forward to bb-api
-        run: |
-          export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=bb-api,app.kubernetes.io/instance=bb-api" -o jsonpath="{.items[0].metadata.name}")
-          export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-          echo "Visit http://127.0.0.1:8080 to use your application"
-          kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT &
-          sleep 10 # Sleep for 10 seconds to allow port-forward to establish
-
-      # Jmeter load test
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: "adopt" # You can adjust the Java distribution/version as needed
-          java-version: "11"
-
-      - name: Download Apache JMeter
-        run: |
-          wget https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.2.tgz
-          tar -xzf apache-jmeter-5.6.2.tgz
-
-      - name: Run JMeter Load Test
-        run: |
-          ./apache-jmeter-5.6.2/bin/jmeter -n -t tests/load/sample_test.jmx -l test_results.jtl
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-results
-          path: test_results.jtl
-
-  dockerhub:
-    # needs: [build, test, performance-test, lint, zap_scan]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Docker
-        uses: docker/setup-buildx-action@v1
-      - name: Login to Docker
-        run: docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
-      - name: Build Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest ./src
-      - name: Push Image To DockerHub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest

@@ -11,7 +11,7 @@ With these commands, the database can be installed and the snapshots of the data
 Before you get started, make sure you have the following prerequisites:
 
 - Node v18.17 or higher.
-- A running PostgreSQL server.
+- A running PostgreSQL server. (can be run with `docker compose up`)
 
 Bootstrap the project to install the database and apply migrations.
 
@@ -19,16 +19,16 @@ Bootstrap the project to install the database and apply migrations.
 npx directus bootstrap
 ```
 
+Apply the snapshot to insert the data models into directus. This applies the latest snapshot.
+
+```bash
+npx directus schema apply --yes ./snapshot.yaml
+```
+
 Start the directus server
 
 ```bash
 npx directus start
-```
-
-Apply the snapshot to insert the data models into directus.
-
-```bash
-npx directus schema apply --yes ./snapshot.yaml
 ```
 
 ## Snapshot the Data Model
@@ -46,4 +46,6 @@ bash
 npx directus schema snapshot --yes ./snapshot.yaml
 ```
 
-Note, that this will force overwrite existing snapshot files.
+Note, that this will force overwrite existing snapshot files with the same name.
+
+The most recent snapshot will always be snapshot.yaml in the root directory, so when making a new snapshot you should first rename the current snapshot and put it in the snapshots directory. Then you can use the command above to create a snapshot of the current state of the directus configuration.

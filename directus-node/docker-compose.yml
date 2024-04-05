@@ -1,0 +1,15 @@
+version: "3"
+services:
+  database:
+    image: postgis/postgis:13-master
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/database:/var/lib/postgresql2/data
+    environment:
+      POSTGRES_USER: "directus"
+      POSTGRES_PASSWORD: "directus"
+      POSTGRES_DB: "directus"
+
+  cache:
+    image: redis:6

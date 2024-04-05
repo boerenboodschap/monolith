@@ -1,5 +1,11 @@
 # boerenboodschap-api
 
+## Planning
+
+Directus Nextjs koppeling maken in test app met authenticatie en alles.
+
+De kennis daarvan gebruiken om de huidige Nextjs app om te zetten om samen te werken met directus.
+
 ## Run the application
 
 ### Local Development with a mongo database
